@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Placement Prediction Project</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <h1>Placement Prediction Project</h1>
+
+</header>
+
+
+<div class="layout">
+
+
+    <!-- SIDEBAR -->
+
+    <nav class="sidebar">
+
+        <ul>
+
+            <li>
+
+                <a
+                    href="{{ url_for('data_loading') }}"
+                    class="menu-item
+                    {% if active == 'data-loading' %}active{% endif %}"
+                >
+                    Data Loading
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a
+                    href="{{ url_for('eda_page') }}"
+                    class="menu-item
+                    {% if active == 'eda' %}active{% endif %}"
+                >
+                    EDA
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a
+                    href="{{ url_for('preprocessing_page') }}"
+                    class="menu-item
+                    {% if active == 'preprocessing' %}active{% endif %}"
+                >
+                    Preprocessing
+                </a>
+
+            </li>
+
+
+            <li class="menu-item disabled">
+
+                Model Training (coming soon)
+
+            </li>
+
+
+            <li class="menu-item disabled">
+
+                Prediction (coming soon)
+
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="content">
+
+
+        <h2>Data Preprocessing</h2>
+
+
+        {% if error %}
+
+            <div class="error">
+
+                {{ error }}
+
+            </div>
+
+        {% endif %}
+
+
+        {% if results %}
+
+
+        <!-- DATASET SUMMARY -->
+
+        <h3>Dataset Summary</h3>
+
+        <table class="summary-table">
+
+            <tr>
+
+                <td>Original Rows</td>
+
+                <td>{{ results.original_rows }}</td>
+
+            </tr>
+
+            <tr>
+
+                <td>Original Columns</td>
+
+                <td>{{ results.original_columns }}</td>
+
+            </tr>
+
+            <tr>
+
+                <td>Duplicate Rows Removed</td>
+
+                <td>{{ results.duplicate_count }}</td>
+
+            </tr>
+
+            <tr>
+
+                <td>Rows After Duplicate Removal</td>
+
+                <td>{{ results.rows_after_duplicates }}</td>
+
+            </tr>
+
+            <tr>
+
+                <td>Training Rows</td>
+
+                <td>{{ results.train_rows }}</td>
+
+            </tr>
+
+            <tr>
+
+                <td>Testing Rows</td>
+
+                <td>{{ results.test_rows }}</td>
+
+            </tr>
+
+            <tr>
+
+                <td>Train/Test Split</td>
+
+                <td>
+                    {{ results.train_percentage }}% /
+                    {{ results.test_percentage }}%
+                </td>
+
+            </tr>
+
+        </table>
+
+
+        <!-- NUMERICAL FEATURES -->
+
+        <h3>Numerical Features</h3>
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Feature</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for col in results.numeric_columns %}
+
+                    <tr>
+
+                        <td>{{ col }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- STANDARD SCALING -->
+
+        <h3>Standard Scaling</h3>
+
+        <p>
+            StandardScaler transforms numerical features so that
+            they are centered around mean 0 with standard deviation 1.
+        </p>
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        {% for col in results.numeric_columns %}
+
+                        <th>{{ col }}</th>
+
+                        {% endfor %}
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for row in results.standard_preview %}
+
+                    <tr>
+
+                        {% for col in results.numeric_columns %}
+
+                        <td>{{ row[col] }}</td>
+
+                        {% endfor %}
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- MIN MAX SCALING -->
+
+        <h3>Min-Max Scaling</h3>
+
+        <p>
+            Min-Max Scaling converts numerical values into the
+            range 0 to 1.
+        </p>
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        {% for col in results.numeric_columns %}
+
+                        <th>{{ col }}</th>
+
+                        {% endfor %}
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for row in results.minmax_preview %}
+
+                    <tr>
+
+                        {% for col in results.numeric_columns %}
+
+                        <td>{{ row[col] }}</td>
+
+                        {% endfor %}
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- NOMINAL ENCODING -->
+
+        <h3>One-Hot Encoding</h3>
+
+        <p>
+            Nominal categorical features are converted into
+            separate binary columns using One-Hot Encoding.
+        </p>
+
+
+        <h4>Original Categorical Columns</h4>
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Column</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for col in results.nominal_columns %}
+
+                    <tr>
+
+                        <td>{{ col }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <h4>
+            Generated Encoded Columns
+            ({{ results.encoded_column_count }})
+        </h4>
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Encoded Column</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for col in results.encoded_columns %}
+
+                    <tr>
+
+                        <td>{{ col }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <h4>Encoded Training Data - First 5 Rows</h4>
+
+        {% if results.ohe_preview %}
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        {% for col in results.encoded_columns %}
+
+                        <th>{{ col }}</th>
+
+                        {% endfor %}
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for row in results.ohe_preview %}
+
+                    <tr>
+
+                        {% for col in results.encoded_columns %}
+
+                        <td>{{ row[col] }}</td>
+
+                        {% endfor %}
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ORDINAL ENCODING -->
+
+        <h3>Ordinal Encoding</h3>
+
+        <p>
+            Ordered categorical values are converted into numerical
+            values according to their predefined order.
+        </p>
+
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+
+                    {% for col in results.ordinal_columns %}
+
+                    <th>{{ col }}</th>
+
+                    {% endfor %}
+
+                    {% for col in results.ordinal_encoded_columns %}
+
+                    <th>{{ col }}</th>
+
+                    {% endfor %}
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for row in results.ordinal_preview %}
+
+                <tr>
+
+                    {% for col in results.ordinal_columns %}
+
+                    <td>{{ row[col] if col in row else "-" }}</td>
+
+                    {% endfor %}
+
+                    {% for col in results.ordinal_encoded_columns %}
+
+                    <td>{{ row[col] }}</td>
+
+                    {% endfor %}
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+
+        <!-- OUTLIER DETECTION -->
+
+        <h3>Outlier Detection using IQR</h3>
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Feature</th>
+
+                        <th>Q1</th>
+
+                        <th>Q3</th>
+
+                        <th>IQR</th>
+
+                        <th>Lower Fence</th>
+
+                        <th>Upper Fence</th>
+
+                        <th>Outliers</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for col, item in results.outliers.items() %}
+
+                    <tr>
+
+                        <td>{{ col }}</td>
+
+                        <td>{{ item.q1 }}</td>
+
+                        <td>{{ item.q3 }}</td>
+
+                        <td>{{ item.iqr }}</td>
+
+                        <td>{{ item.lower_fence }}</td>
+
+                        <td>{{ item.upper_fence }}</td>
+
+                        <td>{{ item.outlier_count }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- OUTLIER CLIPPING -->
+
+        <h3>Outlier Clipping</h3>
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Feature</th>
+
+                        <th>Minimum Before</th>
+
+                        <th>Minimum After</th>
+
+                        <th>Maximum Before</th>
+
+                        <th>Maximum After</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for col, item in results.clipping.items() %}
+
+                    <tr>
+
+                        <td>{{ col }}</td>
+
+                        <td>{{ item.before_min }}</td>
+
+                        <td>{{ item.after_min }}</td>
+
+                        <td>{{ item.before_max }}</td>
+
+                        <td>{{ item.after_max }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% endif %}
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
